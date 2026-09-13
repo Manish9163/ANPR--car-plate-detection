@@ -24,10 +24,9 @@ import {
 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
 
 /* ─────────────────────────────────────────────────────────────
-   Spotlight Card Component (Skiper UI / Aceternity Style)
+   Spotlight Card Component (Skiper UI Style)
    Interactive mouse-tracking radial glow on hover
    ───────────────────────────────────────────────────────────── */
 interface SpotlightCardProps {
@@ -60,7 +59,7 @@ function SpotlightCard({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`relative overflow-hidden rounded-2xl border border-white/[0.08] bg-zinc-900/60 p-6 md:p-8 backdrop-blur-md transition-all duration-300 hover:border-white/[0.18] hover:shadow-2xl hover:shadow-black/60 ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-white/[0.08] bg-zinc-900/60 p-6 md:p-8 backdrop-blur-md transition-colors duration-300 hover:border-white/[0.2] ${className}`}
     >
       {/* Dynamic Cursor Glow */}
       <div
@@ -178,7 +177,7 @@ export function LandingPage() {
   const [activePreset, setActivePreset] = useState<VehiclePreset>(VEHICLE_PRESETS[0]);
   const [isSimulating, setIsSimulating] = useState(false);
 
-  // Section refs for GSAP animations
+  // Section refs for entrance animations
   const heroRef = useRef<HTMLDivElement>(null);
   const heroTitleRef = useRef<HTMLHeadingElement>(null);
   const heroDescRef = useRef<HTMLParagraphElement>(null);
@@ -189,61 +188,43 @@ export function LandingPage() {
   const stepsRef = useRef<HTMLDivElement>(null);
 
   /* ─────────────────────────────────────────────
-     Lenis Smooth Scroll + GSAP ScrollTrigger
+     GSAP Entrance & Scroll Animations
      ───────────────────────────────────────────── */
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    // Initialize smooth momentum scrolling
-    const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
-
-    const handleScroll = () => {
-      ScrollTrigger.update();
-    };
-    lenis.on('scroll', handleScroll);
-
-    const tickerCallback = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-    gsap.ticker.add(tickerCallback);
-    gsap.ticker.lagSmoothing(0);
-
-    // Hero entrance animations with GSAP
+    // Hero entrance timeline
     const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
     if (heroTitleRef.current) {
       heroTl.fromTo(
         heroTitleRef.current,
-        { opacity: 0, y: 35 },
-        { opacity: 1, y: 0, duration: 1.1, delay: 0.1 }
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 1, delay: 0.1 }
       );
     }
     if (heroDescRef.current) {
       heroTl.fromTo(
         heroDescRef.current,
-        { opacity: 0, y: 25 },
-        { opacity: 1, y: 0, duration: 1 },
-        '-=0.7'
-      );
-    }
-    if (heroButtonsRef.current) {
-      heroTl.fromTo(
-        heroButtonsRef.current,
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, duration: 0.9 },
         '-=0.6'
       );
     }
+    if (heroButtonsRef.current) {
+      heroTl.fromTo(
+        heroButtonsRef.current,
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.8 },
+        '-=0.5'
+      );
+    }
     if (heroVideoCardRef.current) {
       heroTl.fromTo(
         heroVideoCardRef.current,
-        { opacity: 0, scale: 0.94, y: 40 },
-        { opacity: 1, scale: 1, y: 0, duration: 1.2 },
-        '-=0.7'
+        { opacity: 0, scale: 0.96, y: 30 },
+        { opacity: 1, scale: 1, y: 0, duration: 1.1 },
+        '-=0.6'
       );
     }
 
@@ -251,16 +232,16 @@ export function LandingPage() {
     if (bentoRef.current) {
       gsap.fromTo(
         bentoRef.current.querySelectorAll('.bento-item'),
-        { opacity: 0, y: 40 },
+        { opacity: 0, y: 35 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
-          stagger: 0.15,
+          duration: 0.7,
+          stagger: 0.12,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: bentoRef.current,
-            start: 'top 80%',
+            start: 'top 85%',
           },
         }
       );
@@ -270,25 +251,22 @@ export function LandingPage() {
     if (stepsRef.current) {
       gsap.fromTo(
         stepsRef.current.querySelectorAll('.step-card'),
-        { opacity: 0, y: 35 },
+        { opacity: 0, y: 30 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
-          stagger: 0.15,
+          duration: 0.7,
+          stagger: 0.12,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: stepsRef.current,
-            start: 'top 82%',
+            start: 'top 85%',
           },
         }
       );
     }
 
     return () => {
-      gsap.ticker.remove(tickerCallback);
-      lenis.off('scroll', handleScroll);
-      lenis.destroy();
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, []);
@@ -338,24 +316,27 @@ export function LandingPage() {
     setTimeout(() => {
       setActivePreset(preset);
       setIsSimulating(false);
-    }, 280);
+    }, 250);
   };
 
   return (
-    <div className="relative min-h-screen bg-bg-primary text-text-primary selection:bg-teal-500/30 selection:text-teal-200">
-      {/* ── Background Ambient Lighting ── */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[850px] h-[550px] bg-gradient-to-b from-teal-500/10 via-emerald-500/5 to-transparent blur-[120px] rounded-full" />
-        <div className="absolute top-[45%] -left-48 w-[600px] h-[600px] bg-teal-600/5 blur-[140px] rounded-full" />
-        <div className="absolute top-[75%] -right-48 w-[600px] h-[600px] bg-cyan-600/5 blur-[140px] rounded-full" />
+    <div className="relative w-full max-w-full overflow-x-clip bg-bg-primary text-text-primary selection:bg-teal-500/30 selection:text-teal-200">
+      {/* ── Background Ambient Lighting (Centered, Symmetrical, No Overflow) ── */}
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        style={{ contain: 'paint' }}
+      >
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-b from-teal-500/10 via-emerald-500/5 to-transparent blur-[100px] rounded-full" />
+        <div className="absolute top-[35%] left-1/2 -translate-x-1/2 w-[850px] h-[350px] bg-teal-600/5 blur-[120px] rounded-full" />
+        <div className="absolute top-[70%] left-1/2 -translate-x-1/2 w-[850px] h-[350px] bg-cyan-600/5 blur-[120px] rounded-full" />
       </div>
 
       {/* ═══════════════════════════════════════════════════════
-         1. HERO SECTION — Editorial, High-Impact
+         1. HERO SECTION — Editorial, Centered
          ═══════════════════════════════════════════════════════ */}
       <section
         ref={heroRef}
-        className="relative z-10 pt-12 sm:pt-16 lg:pt-20 pb-16 lg:pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        className="relative z-10 pt-12 sm:pt-16 lg:pt-20 pb-16 lg:pb-24 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
       >
         {/* Modern Pill Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] backdrop-blur-md mb-8 hover:border-teal-500/40 transition-colors cursor-default">
@@ -419,13 +400,13 @@ export function LandingPage() {
           </button>
         </div>
 
-        {/* ─── 2. CINEMATIC VIDEO SHOWCASE (The centerpiece) ─── */}
+        {/* ─── 2. CINEMATIC VIDEO SHOWCASE (Centerpiece) ─── */}
         <div
           ref={heroVideoCardRef}
-          className="mt-14 sm:mt-18 lg:mt-20 relative max-w-5xl mx-auto"
+          className="mt-14 sm:mt-18 lg:mt-20 relative w-full max-w-5xl mx-auto"
         >
-          {/* Ambient Glow behind frame */}
-          <div className="absolute -inset-1.5 bg-gradient-to-r from-teal-500/20 via-emerald-500/10 to-teal-500/20 rounded-3xl blur-2xl opacity-75 -z-10" />
+          {/* Inset Ambient Glow behind frame (Safe from screen overflow) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 via-emerald-500/10 to-teal-500/20 rounded-3xl blur-xl opacity-75 -z-10" />
 
           {/* Video Container Frame */}
           <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.12] bg-zinc-950 overflow-hidden shadow-2xl shadow-black/80">
@@ -512,8 +493,8 @@ export function LandingPage() {
       {/* ═══════════════════════════════════════════════════════
          3. STATS STRIP — Minimal & High Precision
          ═══════════════════════════════════════════════════════ */}
-      <section className="relative z-10 border-y border-white/[0.06] bg-zinc-950/40 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="relative z-10 w-full border-y border-white/[0.06] bg-zinc-950/40 backdrop-blur-sm">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="text-center md:text-left">
             <div className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-white">
               138<span className="text-teal-400 text-2xl font-sans">ms</span>
@@ -546,13 +527,10 @@ export function LandingPage() {
 
       {/* ═══════════════════════════════════════════════════════
          4. LIVE INTERACTIVE PLAYGROUND (Try Before Launching)
-         ─────────────────────────────────────────────────────
-         Users can click different real-world plate presets
-         and see immediate, structured plate intelligence!
          ═══════════════════════════════════════════════════════ */}
       <section
         ref={playgroundRef}
-        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28"
+        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28"
       >
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold mb-3 uppercase tracking-wider">
@@ -696,7 +674,7 @@ export function LandingPage() {
          ═══════════════════════════════════════════════════════ */}
       <section
         ref={bentoRef}
-        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28"
+        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28"
       >
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold mb-3 uppercase tracking-wider">
@@ -877,9 +855,9 @@ export function LandingPage() {
          ═══════════════════════════════════════════════════════ */}
       <section
         ref={stepsRef}
-        className="relative z-10 border-y border-white/[0.06] bg-zinc-950/40 py-20 lg:py-28"
+        className="relative z-10 w-full border-y border-white/[0.06] bg-zinc-950/40 py-20 lg:py-28"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
               How PlateVision works
@@ -941,10 +919,15 @@ export function LandingPage() {
       {/* ═══════════════════════════════════════════════════════
          7. CLOSING CTA BANNER
          ═══════════════════════════════════════════════════════ */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+      <section className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
         <div className="relative rounded-3xl border border-white/[0.12] bg-gradient-to-b from-zinc-900 via-zinc-900/90 to-zinc-950 p-10 sm:p-16 text-center overflow-hidden shadow-2xl">
-          {/* Ambient Glow */}
-          <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-teal-500/15 blur-3xl rounded-full" />
+          {/* Ambient Glow (Centered and Contained) */}
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+            style={{ contain: 'paint' }}
+          >
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-teal-500/15 blur-3xl rounded-full" />
+          </div>
 
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">

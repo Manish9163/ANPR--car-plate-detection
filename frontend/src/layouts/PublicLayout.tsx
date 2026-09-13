@@ -7,7 +7,7 @@ export function PublicLayout() {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary">
+    <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary w-full max-w-full overflow-x-clip">
       {/* ── Top Navbar ── */}
       <header className="sticky top-0 z-[var(--z-sticky)] border-b border-border-subtle bg-bg-primary/95 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
@@ -59,9 +59,10 @@ export function PublicLayout() {
       </header>
 
       {/* ── Content ── */}
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-full overflow-x-clip">
         <Outlet />
       </main>
+
 
       {/* ── Footer ── */}
       {!isAuthPage && (
